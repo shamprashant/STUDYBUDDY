@@ -1,0 +1,12 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name:  studybuddy-service
+spec:
+  selector:
+    app:  studybuddy
+  type:  LoadBalancer
+  ports:
+  - name:  django-port
+    port:  80
+    targetPort:  8000

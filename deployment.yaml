@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: studybuddy-deployment
+  labels:
+    app: studybuddy
+spec:
+  selector:
+    matchLabels:
+      app: studybuddy
+  template:
+    metadata:
+      labels:
+        app: studybuddy
+    spec:
+      containers:
+        - image: studybuddy:latest
+          name:  studybuddy
+          command: ['/bin/sh', '-c']
+          args:
+            - |
+              python manage.py migrate;
+              python manage.py makemigrations
+              python manage.py runserver 0.0.0.0:8000
+          ports:
+            - containerPort: 8000
+          imagePullPolicy: Never
+        
+        - name:  postgresql
+          image: postgres:9.6.6
+
+          env:
+            - name: POSTGRES_DB
+              value: BASE
+            - name:  POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: root
+            - name: DB_HOST
+              value: localhost
+          ports:
+            - containerPort:  5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-volume-mount
+      volumes:
+        - name: postgres-volume-mount
+          persistentVolumeClaim:
+            claimName: postgres-pvc
